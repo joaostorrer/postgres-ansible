@@ -1,6 +1,13 @@
 # postgres
 Ansible playbooks para gerenciar e alterar bancos de dados postgres
 
+## Dependência
+
+É necessário instalar o módulo `community.postgresql` antes de utilizar os playbooks, da seguinte forma:
+```console
+root@ansible:~$ ansible-galaxy collection install community.postgresql
+```
+
 ## setup_integracao
 Cria usuário, banco de dados, schema, oracle_fdw, foreign server e user mapping no postgres para que seja possível conectar à um banco de dados oracle
 
