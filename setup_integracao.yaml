@@ -1,0 +1,51 @@
+---
+- name: Cria usuário, banco de dados, schema, oracle_fdw, foreign server e user mapping no postgres
+  hosts: postgres
+  become: true
+  become_user: postgres
+
+  tasks:
+  - name: Criar usuário
+    community.postgresql.postgresql_user:
+      name: "{{ postgres_usuario }}"
+      password: "{{ postgres_senha }}"
+
+  - name: Criar banco de dados
+    community.postgresql.postgresql_db:
+      name: "{{ postgres_usuario }}"
+      encoding: UTF-8
+      #lc_collate: pt_BR.UTF-8
+      #lc_ctype: pt_BR.UTF-8
+      owner: "{{ postgres_usuario }}"
+
+  - name: Remover schema public
+    community.postgresql.postgresql_schema:
+      cascade_drop: true
+      db: "{{ postgres_usuario }}"
+      name: public
+      state: absent
+
+  - name: Criar novo schema
+    community.postgresql.postgresql_schema:
+      db: "{{ postgres_usuario }}"
+      name: "{{ postgres_usuario }}"
+      owner: "{{ postgres_usuario }}"
+
+  - name: Criar extensão oracle_fdw
+    community.postgresql.postgresql_ext:
+      db: "{{ postgres_usuario }}"
+      name: oracle_fdw
+      schema: "{{ postgres_usuario }}"
+      version: latest
+
+  - name: Criar foreign server
+    community.postgresql.postgresql_query:
+      db: "{{ postgres_usuario }}"
+      query:
+      - create server if not exists tasy foreign data wrapper oracle_fdw options (dbserver '//{{ oracle_host }}:{{ oracle_porta }}/{{ oracle_service_name }}')
+      - grant usage on foreign server tasy to "{{ postgres_usuario }}"
+
+  - name: Criar user mapping
+    community.postgresql.postgresql_query:
+      db: "{{ postgres_usuario }}"
+      query: create user mapping if not exists for "{{ postgres_usuario }}" server tasy options (user '{{ oracle_usuario }}', password '{{ oracle_senha }}')
