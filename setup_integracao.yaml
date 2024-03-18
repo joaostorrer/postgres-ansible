@@ -18,25 +18,23 @@
       #lc_ctype: pt_BR.UTF-8
       owner: "{{ postgres_usuario }}"
 
-  - name: Remover schema public
-    community.postgresql.postgresql_schema:
-      cascade_drop: true
-      db: "{{ postgres_usuario }}"
-      name: public
-      state: absent
-
   - name: Criar novo schema
     community.postgresql.postgresql_schema:
       db: "{{ postgres_usuario }}"
       name: "{{ postgres_usuario }}"
       owner: "{{ postgres_usuario }}"
-
-  - name: Criar extensão oracle_fdw
+  
+  - name: Criar extensões
     community.postgresql.postgresql_ext:
       db: "{{ postgres_usuario }}"
-      name: oracle_fdw
-      schema: "{{ postgres_usuario }}"
+      name: "{{ item }}"
+      schema: public
       version: latest
+    loop:
+      - oracle_fdw
+      - pg_trgm
+      - pgcrypto
+      - pgjwt
 
   - name: Criar foreign server
     community.postgresql.postgresql_query:
