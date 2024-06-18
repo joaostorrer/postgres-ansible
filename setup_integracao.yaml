@@ -40,7 +40,7 @@
     community.postgresql.postgresql_query:
       db: "{{ postgres_usuario }}"
       query:
-      - create server if not exists tasy foreign data wrapper oracle_fdw options (dbserver '//{{ oracle_host }}:{{ oracle_porta }}/{{ oracle_service_name }}')
+      - create server if not exists tasy foreign data wrapper oracle_fdw options (dbserver '//{{ oracle_host }}:{{ oracle_porta }}/{{ oracle_service_name }}', isolation_level 'read_committed')
       - grant usage on foreign server tasy to "{{ postgres_usuario }}"
 
   - name: Criar user mapping
